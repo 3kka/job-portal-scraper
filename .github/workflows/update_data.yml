@@ -1,15 +1,14 @@
 name: Update Job Database
 
 on:
-  schedule:
-    - cron: '* * * * *' # Runs every single minute for near real-time updates!
-  workflow_dispatch:
+  repository_dispatch:
+    types: [sheet_updated] # This perfectly matches the payload from Google Sheets
+  workflow_dispatch:       # Keeps your manual run button just in case
 
 jobs:
   update-json:
     runs-on: ubuntu-latest
     
-    # Keeps the Node.js warning away
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -26,7 +25,6 @@ jobs:
         run: pip install gspread
 
       - name: Create Google Credentials File
-        # This securely pulls your hidden credentials
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: echo "$GOOGLE_CREDENTIALS" > credentials.json
