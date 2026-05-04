@@ -2,19 +2,19 @@ name: Update Job Database
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs exactly at the top of every hour
-  workflow_dispatch: # Allows you to trigger it manually via a button
+    - cron: '* * * * *' # Runs every single minute for near real-time updates!
+  workflow_dispatch:
 
 jobs:
   update-json:
     runs-on: ubuntu-latest
-
-    # Add this new env block right here!
+    
+    # Keeps the Node.js warning away
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      - name: Checkout Private Engine Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -26,6 +26,7 @@ jobs:
         run: pip install gspread
 
       - name: Create Google Credentials File
+        # This securely pulls your hidden credentials
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: echo "$GOOGLE_CREDENTIALS" > credentials.json
@@ -33,17 +34,8 @@ jobs:
       - name: Run Export Script
         run: python export_script.py
 
-      - name: Checkout Public Database Repo
-        uses: actions/checkout@v4
-        with:
-          repository: 3kka/job-portal-database # CHANGE THIS TO YOUR PUBLIC REPO
-          token: ${{ secrets.PAT_TOKEN }}
-          path: public-data-folder
-
-      - name: Move JSON and Push to Public Repo
+      - name: Save JSON to This Repository
         run: |
-          cp offline_database.json public-data-folder/
-          cd public-data-folder
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add offline_database.json
