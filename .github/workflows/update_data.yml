@@ -9,6 +9,10 @@ jobs:
   update-json:
     runs-on: ubuntu-latest
 
+    # Add this new env block right here!
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout Private Engine Repo
         uses: actions/checkout@v4
